@@ -1,0 +1,36 @@
+# Gradle
+.gradle/
+build/
+**/build/
+
+# Local configuration
+local.properties
+.idea/
+*.iml
+
+# Keystore and signing files
+*.jks
+*.keystore
+*.pem
+*.key
+*.p12
+
+# Firebase
+firebase-debug.log
+firebase-debug.*
+.firebaserc
+
+# google-services.json
+
+# Android specific
+captures/
+output.json
+
+# Kotlin specific
+*.class
+*.kt.metadata
+
+# Windows & OS
+Thumbs.db
+desktop.ini
+*.log
