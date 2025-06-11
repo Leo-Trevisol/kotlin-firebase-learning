@@ -6,4 +6,5 @@
     </style>
 
     <style name="Theme.FirebaseLearning" parent="Base.Theme.FirebaseLearning" />
+
 </resources>

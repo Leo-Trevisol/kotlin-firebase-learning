@@ -5,14 +5,14 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.firebaselearning.databinding.ActivityLoginGoogleBinding
-import com.google.android.gms.auth.api.signin.* // Google Sign-In
-import com.google.android.gms.common.api.ApiException // Para tratar erros de login
-import com.google.firebase.auth.* // Firebase Authentication
+import com.google.android.gms.auth.api.signin.*
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.*
 
 class LoginGoogleActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityLoginGoogleBinding // ViewBinding da tela
-    private lateinit var googleSignInClient: GoogleSignInClient // Cliente de login do Google
+    private lateinit var binding: ActivityLoginGoogleBinding // ViewBinding para acessar os componentes do layout
+    private lateinit var googleSignInClient: GoogleSignInClient // Cliente de login com Google
     private lateinit var auth: FirebaseAuth // Instância do Firebase Auth
 
     private val RC_SIGN_IN = 1001 // Código de requisição para identificar o retorno do login
@@ -20,63 +20,100 @@ class LoginGoogleActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inicializa o binding com o layout da tela
+        // Infla o layout usando ViewBinding
         binding = ActivityLoginGoogleBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Ativa o botão de voltar na ActionBar padrão
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Login com Google"
 
         // Inicializa o Firebase Auth
         auth = FirebaseAuth.getInstance()
 
-        // Configura o Google Sign-In
+        // Configura as opções de login com Google
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)) // ID do cliente Web (SHA + projeto Firebase)
+            .requestIdToken(getString(R.string.default_web_client_id)) // Token necessário para autenticar no Firebase
             .requestEmail() // Solicita o e-mail do usuário
             .build()
 
-        // Cria o cliente de login com Google baseado nas configurações acima
+        // Cria o cliente de login com base nas opções definidas
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // Ação do botão: iniciar o fluxo de login com Google
+        // Verifica se há um usuário logado
+        val currentUser = auth.currentUser
+
+        if (currentUser != null) {
+            // Se o usuário estiver logado, exibe as informações dele
+            val info = "Nome: ${currentUser.displayName}\nEmail: ${currentUser.email}"
+            binding.userInfoTextView.text = info
+            binding.userInfoTextView.visibility = android.view.View.VISIBLE
+
+            // Esconde botão de login e mostra botão de logout
+            binding.btnGoogleSignIn.visibility = android.view.View.GONE
+            binding.btnGoogleSignOut.visibility = android.view.View.VISIBLE
+        } else {
+            // Se não houver usuário logado, exibe apenas o botão de login
+            binding.userInfoTextView.visibility = android.view.View.GONE
+            binding.btnGoogleSignIn.visibility = android.view.View.VISIBLE
+            binding.btnGoogleSignOut.visibility = android.view.View.GONE
+        }
+
+        // Quando o botão de login é clicado, inicia o processo de login com Google
         binding.btnGoogleSignIn.setOnClickListener {
             val signInIntent = googleSignInClient.signInIntent
             startActivityForResult(signInIntent, RC_SIGN_IN)
         }
+
+        // Quando o botão de logout é clicado, faz logout do Firebase e Google
+        binding.btnGoogleSignOut.setOnClickListener {
+            auth.signOut() // Firebase
+            googleSignInClient.signOut().addOnCompleteListener {
+                Toast.makeText(this, "Logout realizado com sucesso", Toast.LENGTH_SHORT).show()
+                recreate() // Recarrega a activity para atualizar a UI
+            }
+        }
+
+        binding.btnBack.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
     }
 
-    // Recebe o resultado da intent de login
+    override fun onSupportNavigateUp(): Boolean {
+        finish() // Fecha a activity e volta à anterior
+        return true
+    }
+
+    // Recebe o resultado do login com Google
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // Verifica se o resultado veio da requisição de login com Google
+        // Verifica se o resultado é da tentativa de login
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
-                // Tenta obter os dados da conta Google
+                // Se obteve sucesso ao recuperar a conta, autentica com Firebase
                 val account = task.getResult(ApiException::class.java)!!
-                // Envia o token da conta para o Firebase
                 firebaseAuthWithGoogle(account.idToken!!)
             } catch (e: ApiException) {
-                // Se falhar, exibe erro
+                // Se falhar, exibe mensagem de erro
                 Toast.makeText(this, "Erro no login: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // Faz o login com Firebase usando a conta do Google
+    // Autentica o usuário no Firebase com credencial Google
     private fun firebaseAuthWithGoogle(idToken: String) {
-        // Cria credencial do Firebase usando o token da conta Google
         val credential = GoogleAuthProvider.getCredential(idToken, null)
 
-        // Tenta autenticar no Firebase com a credencial
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Se deu certo, pega o usuário e exibe uma mensagem
                     val user = auth.currentUser
                     Toast.makeText(this, "Bem-vindo, ${user?.displayName}", Toast.LENGTH_SHORT).show()
-                    finish() // Fecha a activity e volta
+                    recreate() // Atualiza a tela para mostrar os dados do usuário
                 } else {
-                    // Se falhou, exibe mensagem de erro
                     Toast.makeText(this, "Falha na autenticação.", Toast.LENGTH_SHORT).show()
                 }
             }
