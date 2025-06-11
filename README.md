@@ -146,7 +146,7 @@ db.collection("usuarios").document("usuario1")
     }
 </code></pre>
 
-<h2> Login com Google no Firebase (Kotlin + ViewBinding)</h2>
+<h2> Login com Google no Firebase (com exemplo de implementação)</h2>
 
 <h3> 1. Ative o Login com Google no Firebase</h3>
 <ul>
@@ -183,6 +183,55 @@ db.collection("usuarios").document("usuario1")
 <pre><code class="language-xml">
 &lt;string name="default_web_client_id"&gt;xxxxxxxxxxx.apps.googleusercontent.com&lt;/string&gt;
 </code></pre>
+
+<h3> 5. Implementar a <code>LoginGoogleActivity</code> de exemplo</h3>
+
+<pre><code class="language-kotlin">
+class LoginGoogleActivity : AppCompatActivity() {
+
+    private val RC_SIGN_IN = 9001
+    private lateinit var binding: ActivityLoginGoogleBinding
+
+    private val googleSignInClient by lazy {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        GoogleSignIn.getClient(this, gso)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityLoginGoogleBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.btnGoogleSignIn.setOnClickListener {
+            startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RC_SIGN_IN) {
+            try {
+                val account = GoogleSignIn.getSignedInAccountFromIntent(data).result
+                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                FirebaseAuth.getInstance().signInWithCredential(credential)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Olá, ${it.user?.displayName}", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Erro no login", Toast.LENGTH_SHORT).show()
+                    }
+            } catch (e: Exception) {
+                Toast.makeText(this, "Falha: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}
+</code></pre>
+
 
 
 
