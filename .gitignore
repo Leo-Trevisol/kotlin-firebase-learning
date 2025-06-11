@@ -20,7 +20,7 @@ firebase-debug.log
 firebase-debug.*
 .firebaserc
 
-# google-services.json
+**/google-services.json
 
 # Android specific
 captures/
