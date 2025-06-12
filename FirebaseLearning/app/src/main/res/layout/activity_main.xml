@@ -26,6 +26,7 @@
             android:layout_height="wrap_content"
             android:alignmentMode="alignMargins"
             android:columnCount="2"
+            android:orientation="vertical"
             android:padding="8dp"
             android:useDefaultMargins="true" />
     </ScrollView>

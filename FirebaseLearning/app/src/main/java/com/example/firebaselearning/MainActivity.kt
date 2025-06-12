@@ -28,6 +28,15 @@ class MainActivity : AppCompatActivity() {
             }
         )
 
+        adicionarModulo(
+            Modulo(
+                icon = R.drawable.ic_mood,
+                title = "Cadastrar humor"
+            ) {
+                val intent = Intent(this, RegisterMoodActivity::class.java)
+                startActivity(intent)
+            }
+        )
 
     }
 
@@ -41,15 +50,17 @@ class MainActivity : AppCompatActivity() {
             modulo.onClick()
         }
 
+        // Remove o uso de peso e largura 0dp
         val layoutParams = GridLayout.LayoutParams().apply {
-            width = 0
+            width = GridLayout.LayoutParams.MATCH_PARENT
             height = GridLayout.LayoutParams.WRAP_CONTENT
-            columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+            columnSpec = GridLayout.spec(GridLayout.UNDEFINED)
         }
 
         itemBinding.root.layoutParams = layoutParams
         binding.gridLayout.addView(itemBinding.root)
     }
+
 
 
 }

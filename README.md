@@ -232,6 +232,74 @@ class LoginGoogleActivity : AppCompatActivity() {
 }
 </code></pre>
 
+<h2> Cloud Firestore no Firebase (com exemplo de implementação)</h2>
+
+<h3>1. Ative o Firestore no Firebase</h3>
+<ul>
+  <li>Vá no <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+  <li>Selecione seu projeto</li>
+  <li>No menu lateral, clique em <strong>Firestore Database</strong></li>
+  <li>Clique em <strong>"Criar banco de dados"</strong></li>
+  <li>Escolha o <strong>modo de teste</strong> para desenvolvimento:</li>
+</ul>
+
+<pre><code class="language-js">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</code></pre>
+
+<ul>
+  <li>Escolha uma região, como <code>southamerica-east1</code> para o Brasil</li>
+  <li>Clique em <strong>Ativar</strong></li>
+</ul>
+
+<h3>2. Estrutura de exemplo</h3>
+<ul>
+  <li><strong>Coleção:</strong> <code>humores</code></li>
+  <li><strong>Campos de cada documento:</strong>
+    <ul>
+      <li><code>data</code> – data do humor (ex: "11/06/2025")</li>
+      <li><code>humor</code> – texto do humor (ex: "Feliz")</li>
+      <li><code>cor</code> – valor inteiro da cor (ex: -256)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>3. Exemplo de código Kotlin para salvar no Firestore</h3>
+<pre><code class="language-kotlin">
+val firestore = FirebaseFirestore.getInstance()
+
+val moodData = hashMapOf(
+    "data" to selectedDate,
+    "humor" to selectedMoodText,
+    "cor" to selectedMoodColor
+)
+
+firestore.collection("humores")
+    .add(moodData)
+    .addOnSuccessListener {
+        Toast.makeText(this, "Humor salvo com sucesso!", Toast.LENGTH_SHORT).show()
+    }
+    .addOnFailureListener {
+        Toast.makeText(this, "Erro ao salvar humor.", Toast.LENGTH_SHORT).show()
+    }
+</code></pre>
+
+<h3>4. Regras de segurança para produção (opcional)</h3>
+<p>Quando for publicar seu app, troque as regras para permitir acesso apenas a usuários autenticados:</p>
+
+<pre><code class="language-js">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /humores/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</code></pre>
 
 
 
