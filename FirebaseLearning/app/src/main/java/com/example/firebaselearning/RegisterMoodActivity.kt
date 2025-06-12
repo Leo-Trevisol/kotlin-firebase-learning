@@ -1,6 +1,7 @@
 package com.example.firebaselearning
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -113,8 +114,7 @@ class RegisterMoodActivity : AppCompatActivity() {
 
         // Quando o botão de "Ver humores cadastrados" é clicado
         binding.btnVerHumores.setOnClickListener {
-            Toast.makeText(this, "Abrindo lista de humores cadastrados...", Toast.LENGTH_SHORT).show()
-            // Aqui você pode iniciar uma nova activity no futuro
+            startActivity(Intent(this, MoodListActivity::class.java))
         }
     }
 
