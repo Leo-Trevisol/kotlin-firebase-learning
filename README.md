@@ -388,6 +388,110 @@ service cloud.firestore {
   <li>Proteja os dados com regras de segurança no Firestore</li>
 </ul>
 
+<h2>Login com E-mail e Senha no Firebase (com exemplo de implementação)</h2>
+
+<h3>1. Ative o Login com E-mail/Senha no Firebase</h3>
+<ul>
+  <li>Vá no <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+  <li>Selecione seu projeto</li>
+  <li>Vá até <strong>Authentication &gt; Método de login</strong></li>
+  <li>Ative o <strong>E-mail/Senha</strong> e clique em <strong>Salvar</strong></li>
+</ul>
+
+<h3>2. Adicione as dependências do Firebase Authentication</h3>
+<p>No <code>build.gradle (app)</code>:</p>
+<pre><code class="language-kotlin">
+implementation 'com.google.firebase:firebase-auth:22.3.1'
+</code></pre>
+<p>Certifique-se de já ter o <code>google-services.json</code> e o plugin:</p>
+<pre><code class="language-kotlin">
+apply plugin: 'com.google.gms.google-services'
+</code></pre>
+
+<h3>3. Crie o layout <code>activity_login.xml</code></h3>
+<pre><code class="language-xml">
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:padding="16dp"
+    android:layout_width="match_parent" android:layout_height="match_parent"&gt;
+
+    &lt;EditText
+        android:id="@+id/etEmail"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/&gt;
+
+    &lt;EditText
+        android:id="@+id/etSenha"
+        android:hint="Senha"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/&gt;
+
+    &lt;Button
+        android:id="@+id/btnLogin"
+        android:text="Login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/&gt;
+
+    &lt;Button
+        android:id="@+id/btnCadastrar"
+        android:text="Cadastrar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/&gt;
+
+&lt;/LinearLayout&gt;
+</code></pre>
+
+<h3>4. Implemente a <code>LoginEmailActivity.kt</code></h3>
+<pre><code class="language-kotlin">
+class LoginEmailActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityLoginBinding
+    private val auth = FirebaseAuth.getInstance()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.btnLogin.setOnClickListener {
+            val email = binding.etEmail.text.toString()
+            val senha = binding.etSenha.text.toString()
+            auth.signInWithEmailAndPassword(email, senha)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Login realizado com sucesso", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Erro no login: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+        binding.btnCadastrar.setOnClickListener {
+            val email = binding.etEmail.text.toString()
+            val senha = binding.etSenha.text.toString()
+            auth.createUserWithEmailAndPassword(email, senha)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Cadastro feito com sucesso", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Erro no cadastro: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+}
+</code></pre>
+
+<h3>5. Usar o usuário autenticado no app</h3>
+<p>Após login ou cadastro, você pode obter o usuário atual com:</p>
+<pre><code class="language-kotlin">
+val usuario = FirebaseAuth.getInstance().currentUser
+val uid = usuario?.uid
+</code></pre>
+<p>Com esse <code>uid</code>, você pode salvar dados no Firestore ou Realtime Database de forma segura e individual para cada usuário.</p>
+
+
 
 
 

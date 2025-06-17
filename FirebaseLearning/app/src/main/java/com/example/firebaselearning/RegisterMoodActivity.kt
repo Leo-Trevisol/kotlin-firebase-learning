@@ -4,22 +4,24 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.firebaselearning.databinding.ActivityRegisterMoodBinding
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
 
 class RegisterMoodActivity : AppCompatActivity() {
 
-    // ViewBinding para acessar os componentes da tela
+    // View binding para acessar elementos da UI
     private lateinit var binding: ActivityRegisterMoodBinding
 
-    // Instância do Firestore
-    private val firestore = FirebaseFirestore.getInstance()
+    // Variáveis para armazenar os dados selecionados pelo usuário
+    private var selectedDate: String = ""
+    private var selectedMoodColor: Int = Color.YELLOW
+    private var selectedMoodText: String = "Feliz"
 
     // Lista de humores disponíveis com suas cores associadas
     private val moodList = listOf(
@@ -30,41 +32,82 @@ class RegisterMoodActivity : AppCompatActivity() {
         "Irritado" to Color.RED
     )
 
-    // Variáveis para armazenar o humor e a data selecionados
-    private var selectedDate: String? = null
-    private var selectedMoodColor: Int? = null
-    private var selectedMoodText: String? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterMoodBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Configura os componentes da interface
-        configurarData()
+        // Configura os elementos da tela
         configurarSpinner()
-        configurarBotoes()
+        configurarSelecionarData()
+
+        // Botão para salvar o humor no Firestore
+        binding.btnCadastrarHumor.setOnClickListener {
+            salvarHumor()
+        }
+
+        // Botão para abrir a lista de humores cadastrados
+        binding.btnVerHumores.setOnClickListener {
+            // Obtém o usuário atualmente autenticado no Firebase
+            val user = FirebaseAuth.getInstance().currentUser
+
+            // Verifica se o usuário está logado
+            if (user == null) {
+                Toast.makeText(this, "Usuário não está logado", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Obtém a instância do Firestore
+            val db = FirebaseFirestore.getInstance()
+
+            // Consulta a coleção "humores" filtrando pelos documentos que pertencem ao usuário atual (campo "uid")
+            db.collection("humores")
+                .whereEqualTo("uid", user.uid)
+                .get()
+                .addOnSuccessListener { documents ->
+                    // Se não houver nenhum documento (humor) cadastrado para o usuário
+                    if (documents.isEmpty) {
+                        Toast.makeText(this, "Nenhum humor cadastrado ainda", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // Caso existam humores cadastrados, abre a tela de lista de humores
+                        startActivity(Intent(this, MoodListActivity::class.java))
+                    }
+                }
+                .addOnFailureListener { e ->
+                    // Caso ocorra algum erro ao consultar o Firestore, mostra uma mensagem de erro
+                    Toast.makeText(this, "Erro ao consultar humores: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+        binding.btnBack.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
     }
 
-    // Abre um DatePicker para o usuário selecionar a data
-    private fun configurarData() {
+    // Função para configurar a seleção de data
+    private fun configurarSelecionarData() {
         val calendar = Calendar.getInstance()
+
+        // Cria um DatePickerDialog para o usuário escolher a data
+        val datePicker = DatePickerDialog(
+            this,
+            { _, year, month, dayOfMonth ->
+                selectedDate = "$dayOfMonth/${month + 1}/$year"
+                binding.txtSelectedDate.text = selectedDate
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+
+        // Abre o seletor de data ao clicar no campo de texto
         binding.txtSelectedDate.setOnClickListener {
-            DatePickerDialog(
-                this,
-                { _, year, month, dayOfMonth ->
-                    // Formata e salva a data selecionada
-                    selectedDate = "$dayOfMonth/${month + 1}/$year"
-                    binding.txtSelectedDate.text = selectedDate
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            datePicker.show()
         }
     }
 
-    // Configura o spinner com os humores disponíveis
+    // Função para configurar o spinner de humor
     private fun configurarSpinner() {
         val moods = moodList.map { it.first } // Só os textos
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, moods)
@@ -86,59 +129,51 @@ class RegisterMoodActivity : AppCompatActivity() {
         }
     }
 
-    // Configura os botões de ação
-    private fun configurarBotoes() {
-        // Quando o botão de "Cadastrar" é clicado
-        binding.btnCadastrarHumor.setOnClickListener {
-            if (selectedDate == null) {
-                Toast.makeText(this, "Por favor, selecione uma data.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+    // Função para salvar o humor no Firestore
+    private fun salvarHumor() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
 
-            // Cria um objeto com os dados para salvar no Firestore
-            val uid = FirebaseAuth.getInstance().currentUser?.uid
-
-            if (uid == null) {
-                Toast.makeText(this, "Usuário não está logado!", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val moodData = hashMapOf(
-                "data" to selectedDate,
-                "humor" to selectedMoodText,
-                "cor" to selectedMoodColor,
-                "uid" to uid //  Amarra o humor ao usuário logado
-            )
-
-            // Salva o humor na coleção "humores"
-            firestore.collection("humores")
-                .add(moodData)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Humor salvo com sucesso!", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Erro ao salvar humor.", Toast.LENGTH_SHORT).show()
-                }
+        // Verifica se o usuário está autenticado
+        if (uid == null) {
+            Toast.makeText(this, "Usuário não autenticado", Toast.LENGTH_SHORT).show()
+            return
         }
 
-        // Quando o botão de "Ver humores cadastrados" é clicado
-        binding.btnVerHumores.setOnClickListener {
-            startActivity(Intent(this, MoodListActivity::class.java))
+        // Verifica se o usuário selecionou uma data
+        if (selectedDate.isEmpty()) {
+            Toast.makeText(this, "Selecione uma data", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        // Cria um mapa com os dados do humor
+        val moodData = hashMapOf(
+            "data" to selectedDate,
+            "humor" to selectedMoodText,
+            "cor" to selectedMoodColor,
+            "uid" to uid,
+            "timestamp" to Timestamp.now() // ajuda a ordenar os dados
+        )
+
+        // Envia os dados para a coleção "humores" no Firestore
+        FirebaseFirestore.getInstance()
+            .collection("humores")
+            .add(moodData)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Humor salvo com sucesso!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Erro ao salvar humor: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
-    // Extensão que facilita o uso do setOnItemSelectedListener para Spinners
-    private fun View.setOnItemSelectedListener(
-        listener: (parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) -> Unit
-    ) {
-        if (this is android.widget.Spinner) {
-            this.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
-                    listener(parent, view, position, id)
-                }
-
-                override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
+    // Função de extensão para configurar listener no spinner de forma mais simples
+    private fun android.widget.Spinner.setOnItemSelectedListener(listener: (parent: android.widget.AdapterView<*>, view: android.view.View?, position: Int, id: Long) -> Unit) {
+        this.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>, view: android.view.View?, position: Int, id: Long) {
+                listener(parent, view, position, id)
             }
+
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
         }
     }
 }

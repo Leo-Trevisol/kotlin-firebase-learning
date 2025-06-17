@@ -3,10 +3,24 @@
     android:id="@+id/registerMoodRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
+    android:padding="16dp"
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:background="#FFFFFF">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_back"
+            android:contentDescription="Voltar"
+            android:padding="8dp"
+            android:layout_gravity="start" />
+    </FrameLayout>
 
     <!-- Seletor de Data -->
     <TextView

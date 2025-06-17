@@ -3,7 +3,6 @@ package com.example.firebaselearning
 import android.content.Intent
 import android.os.Bundle
 import android.widget.GridLayout
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.firebaselearning.databinding.ActivityMainBinding
 import com.example.firebaselearning.databinding.ItemModuloBinding
@@ -24,6 +23,16 @@ class MainActivity : AppCompatActivity() {
                 title = "Login com Google"
             ) {
                 val intent = Intent(this, LoginGoogleActivity::class.java)
+                startActivity(intent)
+            }
+        )
+
+        adicionarModulo(
+            Modulo(
+                icon = R.drawable.ic_user,
+                title = "Login com Usuário e Senha"
+            ) {
+                val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
             }
         )

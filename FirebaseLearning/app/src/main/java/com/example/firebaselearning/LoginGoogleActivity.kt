@@ -68,11 +68,19 @@ class LoginGoogleActivity : AppCompatActivity() {
         // Quando o botão de logout é clicado, faz logout do Firebase e Google
         binding.btnGoogleSignOut.setOnClickListener {
             auth.signOut() // Firebase
-            googleSignInClient.signOut().addOnCompleteListener {
+
+            val googleAccount = GoogleSignIn.getLastSignedInAccount(this)
+            if (googleAccount != null) {
+                googleSignInClient.signOut().addOnCompleteListener {
+                    Toast.makeText(this, "Logout realizado com sucesso", Toast.LENGTH_SHORT).show()
+                    recreate()
+                }
+            } else {
                 Toast.makeText(this, "Logout realizado com sucesso", Toast.LENGTH_SHORT).show()
-                recreate() // Recarrega a activity para atualizar a UI
+                recreate()
             }
         }
+
 
         binding.btnBack.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
