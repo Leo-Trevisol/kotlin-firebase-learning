@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.firebaselearning.databinding.ActivityRegisterMoodBinding
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
 
@@ -95,10 +96,18 @@ class RegisterMoodActivity : AppCompatActivity() {
             }
 
             // Cria um objeto com os dados para salvar no Firestore
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+            if (uid == null) {
+                Toast.makeText(this, "Usuário não está logado!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             val moodData = hashMapOf(
                 "data" to selectedDate,
                 "humor" to selectedMoodText,
-                "cor" to selectedMoodColor
+                "cor" to selectedMoodColor,
+                "uid" to uid //  Amarra o humor ao usuário logado
             )
 
             // Salva o humor na coleção "humores"

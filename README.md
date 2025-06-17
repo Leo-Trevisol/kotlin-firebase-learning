@@ -301,6 +301,94 @@ service cloud.firestore {
   }
 }</code></pre>
 
+<h2>Amarrando dados ao usuário autenticado no Firebase (com exemplo de implementação)</h2>
+
+<p>Este passo a passo mostra como salvar e ler dados no Firestore vinculando-os ao usuário autenticado via Firebase Authentication (ex: login com Google).</p>
+
+<h3> 1. Salvar dados com o UID do usuário</h3>
+<p>Ao salvar dados no Firestore, associe o <code>uid</code> do usuário autenticado:</p>
+
+<pre><code class="language-kotlin">
+val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+if (uid == null) {
+    Toast.makeText(this, "Usuário não autenticado!", Toast.LENGTH_SHORT).show()
+    return
+}
+
+val moodData = hashMapOf(
+    "data" to selectedDate,
+    "humor" to selectedMoodText,
+    "cor" to selectedMoodColor,
+    "uid" to uid // Amarra o dado ao usuário
+)
+
+FirebaseFirestore.getInstance().collection("humores")
+    .add(moodData)
+    .addOnSuccessListener {
+        Toast.makeText(this, "Humor salvo com sucesso!", Toast.LENGTH_SHORT).show()
+    }
+    .addOnFailureListener {
+        Toast.makeText(this, "Erro ao salvar humor.", Toast.LENGTH_SHORT).show()
+    }
+</code></pre>
+
+<h3> 2. Ler apenas os dados do usuário logado</h3>
+<p>Filtre os dados usando o mesmo <code>uid</code> ao fazer a leitura:</p>
+
+<pre><code class="language-kotlin">
+val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+if (uid == null) {
+    Toast.makeText(this, "Usuário não autenticado!", Toast.LENGTH_SHORT).show()
+    finish()
+    return
+}
+
+FirebaseFirestore.getInstance().collection("humores")
+    .whereEqualTo("uid", uid)
+    .get()
+    .addOnSuccessListener { result ->
+        for (document in result) {
+            val data = document.getString("data")
+            val humor = document.getString("humor")
+            val cor = document.getLong("cor")?.toInt()
+
+            // Adicione à lista/RecyclerView conforme sua lógica
+        }
+    }
+    .addOnFailureListener {
+        Toast.makeText(this, "Erro ao carregar humores.", Toast.LENGTH_SHORT).show()
+    }
+</code></pre>
+
+<h3> 3. Regras de segurança no Firestore</h3>
+<p>Garanta que um usuário só possa ler/escrever os próprios dados no Firestore:</p>
+
+<pre><code class="language-js">
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /humores/{document} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+  }
+}
+</code></pre>
+
+<p> Essas regras exigem que o campo <code>uid</code> esteja presente em cada documento.</p>
+
+<h3> Resumo</h3>
+<ul>
+  <li>Obtenha o <code>uid</code> do usuário autenticado:
+    <pre><code class="language-kotlin">FirebaseAuth.getInstance().currentUser?.uid</code></pre>
+  </li>
+  <li>Salve esse <code>uid</code> no documento no Firestore</li>
+  <li>Filtre os dados usando <code>.whereEqualTo("uid", uid)</code></li>
+  <li>Proteja os dados com regras de segurança no Firestore</li>
+</ul>
+
+
 
 
 
