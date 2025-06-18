@@ -47,6 +47,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        // Link "Esqueceu a senha?"
         binding.txtEsqueceuSenha.setOnClickListener {
             val email = binding.edtEmail.text.toString().trim()
 
@@ -69,18 +70,23 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // Função para registrar novo usuário com e-mail e senha no Firebase
+    /**
+     * Registra um novo usuário com e-mail e senha no Firebase.
+     * Após o registro, envia automaticamente um e-mail de verificação.
+     * Isso é importante para garantir que o e-mail usado é válido.
+     */
     private fun registrarUsuario(email: String, senha: String) {
         auth.createUserWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    // Enviar e-mail de verificação
                     val user = auth.currentUser
+                    // Envia o e-mail de verificação
                     user?.sendEmailVerification()
                         ?.addOnCompleteListener { verifyTask ->
                             if (verifyTask.isSuccessful) {
+                                // Mostra mensagem solicitando verificação de e-mail
                                 Toast.makeText(this, "Usuário registrado! Verifique seu e-mail para ativar a conta.", Toast.LENGTH_LONG).show()
-                                finish() // Fecha a tela para que o usuário cheque o e-mail antes de entrar
+                                finish() // Fecha a tela de registro
                             } else {
                                 Toast.makeText(this, "Erro ao enviar e-mail de verificação: ${verifyTask.exception?.message}", Toast.LENGTH_SHORT).show()
                             }
@@ -91,19 +97,25 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
-    // Função para fazer login com e-mail e senha
+    /**
+     * Realiza login com e-mail e senha.
+     * Verifica se o e-mail foi confirmado antes de permitir acesso ao app.
+     * Caso não esteja verificado, o login é bloqueado.
+     */
     private fun loginUsuario(email: String, senha: String) {
         auth.signInWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     if (user != null && user.isEmailVerified) {
+                        //  E-mail foi verificado, pode entrar
                         Toast.makeText(this, "Login realizado!", Toast.LENGTH_SHORT).show()
-                        finish() // Fecha a tela e retorna
-                        // Pode abrir a MainActivity aqui, se quiser
+                        finish()
+                        // Aqui você pode redirecionar para a MainActivity se quiser
                     } else {
+                        //  E-mail não verificado: bloqueia acesso e desloga
                         Toast.makeText(this, "Por favor, verifique seu e-mail antes de fazer login.", Toast.LENGTH_LONG).show()
-                        auth.signOut() // Desloga para evitar acesso sem verificação
+                        auth.signOut()
                     }
                 } else {
                     Toast.makeText(this, "Erro: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
