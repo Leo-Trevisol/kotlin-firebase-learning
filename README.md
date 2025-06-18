@@ -491,8 +491,64 @@ val uid = usuario?.uid
 </code></pre>
 <p>Com esse <code>uid</code>, você pode salvar dados no Firestore ou Realtime Database de forma segura e individual para cada usuário.</p>
 
+<h2> Reset de Senha com Firebase Authentication</h2>
 
+<h3>1. Adicione um botão "Esqueceu a senha?" no layout</h3>
+<pre><code class="language-xml">
+&lt;TextView
+    android:id="@+id/tvEsqueceuSenha"
+    android:text="Esqueceu a senha?"
+    android:textColor="@android:color/holo_blue_dark"
+    android:layout_marginTop="8dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" /&gt;
+</code></pre>
 
+<h3>2. Enviar o e-mail de redefinição de senha no Kotlin</h3>
+<pre><code class="language-kotlin">
+binding.tvEsqueceuSenha.setOnClickListener {
+    val email = binding.etEmail.text.toString().trim()
+    if (email.isNotEmpty()) {
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+            .addOnSuccessListener {
+                Toast.makeText(this, "E-mail de redefinição enviado!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Erro: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+    } else {
+        Toast.makeText(this, "Digite seu e-mail para redefinir a senha", Toast.LENGTH_SHORT).show()
+    }
+}
+</code></pre>
 
+<h3>3. Personalizar o conteúdo dos e-mails</h3>
+<ul>
+  <li>Volte ao <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+  <li>Vá em <strong>Authentication &gt; Modelos de e-mail</strong></li>
+  <li>Clique em <strong>Redefinição de senha</strong></li>
+  <li>Edite o <strong>assunto</strong> e o <strong>corpo do e-mail</strong></li>
+  <li>Use variáveis como <code>{{email}}</code> e <code>{{url}}</code></li>
+  <li>Salve as alterações</li>
+</ul>
 
+<h3>4. (Opcional) Usar domínio personalizado nos links de e-mail</h3>
+<ul>
+  <li>No Firebase, clique em <strong>Adicionar domínio personalizado</strong></li>
+  <li>Informe o domínio (ex: auth.seusite.com)</li>
+  <li>Adicione o registro TXT indicado no seu provedor de DNS</li>
+  <li>Depois da propagação, clique em <strong>Verificar</strong></li>
+</ul>
+<p>Assim, os links enviados nos e-mails virão de <code>auth.seusite.com</code> ao invés de <code>firebaseapp.com</code></p>
 
+<h3>5. (Avançado) Redirecionar para uma URL ou tela no app</h3>
+<p>Você pode configurar a URL de redirecionamento após redefinir a senha com <code>ActionCodeSettings</code>:</p>
+<pre><code class="language-kotlin">
+val actionCodeSettings = ActionCodeSettings.newBuilder()
+    .setUrl("https://seusite.com/resetado")
+    .setHandleCodeInApp(true)
+    .setAndroidPackageName("com.seuprojeto.app", true, null)
+    .build()
+
+FirebaseAuth.getInstance().sendPasswordResetEmail(email, actionCodeSettings)
+</code></pre>

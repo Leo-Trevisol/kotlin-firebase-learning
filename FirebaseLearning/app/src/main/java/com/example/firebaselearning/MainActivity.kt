@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         adicionarModulo(
             Modulo(
                 icon = R.drawable.ic_mood,
-                title = "Cadastrar humor"
+                title = "Humores"
             ) {
                 val intent = Intent(this, RegisterMoodActivity::class.java)
                 startActivity(intent)

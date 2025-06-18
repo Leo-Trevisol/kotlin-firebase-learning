@@ -33,6 +33,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <!-- Link: Esqueceu a senha -->
+    <TextView
+        android:id="@+id/txtEsqueceuSenha"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Esqueceu a senha?"
+        android:textColor="@android:color/holo_blue_dark"
+        android:layout_gravity="end"
+        android:paddingTop="8dp"
+        android:textSize="14sp"
+        android:clickable="true"
+        android:focusable="true"/>
+
     <Button
         android:id="@+id/btnLogin"
         android:text="Entrar"

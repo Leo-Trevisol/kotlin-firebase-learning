@@ -45,7 +45,16 @@ class LoginGoogleActivity : AppCompatActivity() {
 
         if (currentUser != null) {
             // Se o usuário estiver logado, exibe as informações dele
-            val info = "Nome: ${currentUser.displayName}\nEmail: ${currentUser.email}"
+
+            var info: String
+
+            // Se displayName for nulo ou vazio, usamos o email como nome
+            if (!currentUser.displayName.isNullOrBlank()) {
+                info = "Usuário: ${currentUser.displayName}\n" +"Email: ${currentUser.email}"
+            } else {
+                info = "Usuário: ${currentUser.email}"
+            }
+
             binding.userInfoTextView.text = info
             binding.userInfoTextView.visibility = android.view.View.VISIBLE
 
