@@ -552,3 +552,83 @@ val actionCodeSettings = ActionCodeSettings.newBuilder()
 
 FirebaseAuth.getInstance().sendPasswordResetEmail(email, actionCodeSettings)
 </code></pre>
+
+<h2> Verificação de E-mail com Firebase Authentication</h2>
+
+<h3>1. Enviar e-mail de verificação após o registro</h3>
+<pre><code class="language-kotlin">
+FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, senha)
+    .addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            val usuario = FirebaseAuth.getInstance().currentUser
+            usuario?.sendEmailVerification()
+                ?.addOnSuccessListener {
+                    Toast.makeText(this, "Verifique seu e-mail para ativar a conta!", Toast.LENGTH_LONG).show()
+                }
+                ?.addOnFailureListener {
+                    Toast.makeText(this, "Erro ao enviar verificação: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+</code></pre>
+
+<h3>2. Verificar se o e-mail foi confirmado antes de permitir login</h3>
+<pre><code class="language-kotlin">
+val user = FirebaseAuth.getInstance().currentUser
+if (user != null && user.isEmailVerified) {
+    // Login permitido
+    startActivity(Intent(this, MainActivity::class.java))
+} else {
+    // Bloqueia o acesso e desloga
+    FirebaseAuth.getInstance().signOut()
+    Toast.makeText(this, "Verifique seu e-mail antes de fazer login.", Toast.LENGTH_LONG).show()
+}
+</code></pre>
+
+<h3>3. Reenviar o e-mail de verificação (opcional)</h3>
+<pre><code class="language-kotlin">
+FirebaseAuth.getInstance().currentUser?.sendEmailVerification()
+    ?.addOnSuccessListener {
+        Toast.makeText(this, "E-mail de verificação reenviado!", Toast.LENGTH_SHORT).show()
+    }
+    ?.addOnFailureListener {
+        Toast.makeText(this, "Erro: ${it.message}", Toast.LENGTH_SHORT).show()
+    }
+</code></pre>
+
+<h3>4. Personalizar o conteúdo do e-mail</h3>
+<ul>
+  <li>Vá para o <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+  <li>Abra <strong>Authentication &gt; Modelos de e-mail</strong></li>
+  <li>Clique em <strong>Verificação de e-mail</strong></li>
+  <li>Edite o <strong>assunto</strong> e o <strong>corpo do e-mail</strong></li>
+  <li>Você pode usar variáveis como:
+    <ul>
+      <li><code>{{email}}</code> – E-mail do usuário</li>
+      <li><code>{{url}}</code> – Link de verificação</li>
+    </ul>
+  </li>
+  <li>Clique em <strong>Salvar</strong></li>
+</ul>
+
+<h3>5. (Opcional) Usar domínio personalizado nos links</h3>
+<ul>
+  <li>No Firebase, clique em <strong>Adicionar domínio personalizado</strong></li>
+  <li>Informe seu domínio (ex: auth.seusite.com)</li>
+  <li>Adicione o registro TXT no DNS do seu domínio</li>
+  <li>Aguarde a propagação e clique em <strong>Verificar</strong></li>
+</ul>
+<p>Isso fará com que os links enviados nos e-mails venham de <code>auth.seusite.com</code> em vez de <code>firebaseapp.com</code></p>
+
+<h3>6. (Avançado) Redirecionar para uma URL ou tela no app</h3>
+<p>Você pode personalizar para onde o usuário será levado após confirmar o e-mail, usando <code>ActionCodeSettings</code>:</p>
+<pre><code class="language-kotlin">
+val actionCodeSettings = ActionCodeSettings.newBuilder()
+    .setUrl("https://seusite.com/confirmado")
+    .setHandleCodeInApp(true)
+    .setAndroidPackageName("com.seuprojeto.app", true, null)
+    .build()
+
+FirebaseAuth.getInstance().currentUser?.sendEmailVerification(actionCodeSettings)
+</code></pre>
+

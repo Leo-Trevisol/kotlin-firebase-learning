@@ -53,15 +53,13 @@ class LoginActivity : AppCompatActivity() {
             if (email.isNotEmpty()) {
                 FirebaseAuth.getInstance().sendPasswordResetEmail(email)
                     .addOnSuccessListener {
-                        Toast.makeText(this, "E-mail de redefinição enviado!", Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(this, "E-mail de redefinição enviado!", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener {
                         Toast.makeText(this, "Erro: ${it.message}", Toast.LENGTH_SHORT).show()
                     }
             } else {
-                Toast.makeText(this, "Digite o e-mail para redefinir a senha", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(this, "Digite o e-mail para redefinir a senha", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -76,8 +74,17 @@ class LoginActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Usuário registrado com sucesso!", Toast.LENGTH_SHORT).show()
-                    finish() // Fecha a tela de login/registro
+                    // Enviar e-mail de verificação
+                    val user = auth.currentUser
+                    user?.sendEmailVerification()
+                        ?.addOnCompleteListener { verifyTask ->
+                            if (verifyTask.isSuccessful) {
+                                Toast.makeText(this, "Usuário registrado! Verifique seu e-mail para ativar a conta.", Toast.LENGTH_LONG).show()
+                                finish() // Fecha a tela para que o usuário cheque o e-mail antes de entrar
+                            } else {
+                                Toast.makeText(this, "Erro ao enviar e-mail de verificação: ${verifyTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                 } else {
                     Toast.makeText(this, "Erro: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -89,10 +96,15 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Login realizado!", Toast.LENGTH_SHORT).show()
-                    finish() // Fecha a tela e retorna
-                    // Você pode redirecionar para a MainActivity se quiser
-                    // startActivity(Intent(this, MainActivity::class.java))
+                    val user = auth.currentUser
+                    if (user != null && user.isEmailVerified) {
+                        Toast.makeText(this, "Login realizado!", Toast.LENGTH_SHORT).show()
+                        finish() // Fecha a tela e retorna
+                        // Pode abrir a MainActivity aqui, se quiser
+                    } else {
+                        Toast.makeText(this, "Por favor, verifique seu e-mail antes de fazer login.", Toast.LENGTH_LONG).show()
+                        auth.signOut() // Desloga para evitar acesso sem verificação
+                    }
                 } else {
                     Toast.makeText(this, "Erro: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
