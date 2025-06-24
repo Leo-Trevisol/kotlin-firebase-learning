@@ -57,6 +57,16 @@ class MainActivity : AppCompatActivity() {
             }
         )
 
+        adicionarModulo(
+            Modulo(
+                icon = R.drawable.ic_user,
+                title = "Enviar Chat"
+            ) {
+                val intent = Intent(this, ChatActivity::class.java)
+                startActivity(intent)
+            }
+        )
+
     }
 
     private fun adicionarModulo(modulo: Modulo) {
