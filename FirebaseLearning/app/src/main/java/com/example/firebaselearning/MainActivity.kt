@@ -47,6 +47,16 @@ class MainActivity : AppCompatActivity() {
             }
         )
 
+        adicionarModulo(
+            Modulo(
+                icon = R.drawable.ic_user,
+                title = "Adiciona usuario"
+            ) {
+                val intent = Intent(this, ProfileActivity::class.java)
+                startActivity(intent)
+            }
+        )
+
     }
 
     private fun adicionarModulo(modulo: Modulo) {

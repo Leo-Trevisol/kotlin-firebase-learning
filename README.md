@@ -632,3 +632,147 @@ val actionCodeSettings = ActionCodeSettings.newBuilder()
 FirebaseAuth.getInstance().currentUser?.sendEmailVerification(actionCodeSettings)
 </code></pre>
 
+<h2>Firebase Realtime Database </h2>
+
+<h3>1. Ative o Realtime Database no Firebase Console (com exemplo de implementação)</h3>
+<ul>
+  <li>Acesse o <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+  <li>Selecione seu projeto</li>
+  <li>No menu lateral, clique em <strong>Realtime Database</strong></li>
+  <li>Clique em <strong>Criar banco de dados</strong></li>
+  <li>Escolha o modo de segurança:
+    <ul>
+      <li><em>Modo teste</em>: temporariamente aberto para leitura e escrita</li>
+      <li><em>Modo bloqueado</em>: requer configuração de regras, recomendado para produção</li>
+    </ul>
+  </li>
+  <li>Clique em <strong>Ativar</strong></li>
+</ul>
+
+<h3>2. Adicione as dependências do Realtime Database no seu <code>build.gradle (app)</code></h3>
+<pre><code class="language-kotlin">
+implementation 'com.google.firebase:firebase-database-ktx:20.2.3'
+implementation 'com.google.firebase:firebase-auth:22.3.1'  <!-- Se usar autenticação -->
+</code></pre>
+<p>Não esqueça de incluir também o plugin Google Services:</p>
+<pre><code class="language-kotlin">
+apply plugin: 'com.google.gms.google-services'
+</code></pre>
+
+<h3>3. Configure as regras de segurança no Realtime Database</h3>
+<p>Exemplo para permitir leitura e escrita apenas de usuários autenticados:</p>
+<pre><code class="language-json">
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null"
+  }
+}
+</code></pre>
+
+<h3>4. Exemplo de uso no app (salvar e ler dados do usuário autenticado)</h3>
+<pre><code class="language-kotlin">
+class ProfileActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityProfileBinding
+    private lateinit var database: DatabaseReference
+    private val auth = FirebaseAuth.getInstance()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityProfileBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        database = FirebaseDatabase.getInstance().reference
+        val user = auth.currentUser
+
+        if (user != null) {
+            val uid = user.uid
+
+            // Ler nome salvo no banco
+            database.child("usuarios").child(uid).child("nome")
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val nome = snapshot.getValue(String::class.java)
+                        binding.edtNome.setText(nome ?: "")
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        Toast.makeText(this@ProfileActivity, "Erro ao carregar dados", Toast.LENGTH_SHORT).show()
+                    }
+                })
+
+            // Salvar nome no banco
+            binding.btnSalvar.setOnClickListener {
+                val nomeDigitado = binding.edtNome.text.toString().trim()
+                if (nomeDigitado.isNotEmpty()) {
+                    database.child("usuarios").child(uid).child("nome").setValue(nomeDigitado)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Nome salvo com sucesso!", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Erro: ${it.message}", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    Toast.makeText(this, "Digite um nome", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            Toast.makeText(this, "Usuário não autenticado", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+    }
+}
+</code></pre>
+
+<h3>5. Diferença entre Realtime Database e Firestore</h3>
+<table border="1" cellpadding="6" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Característica</th>
+      <th>Realtime Database</th>
+      <th>Firestore</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Modelo de dados</td>
+      <td>JSON gigante e simples</td>
+      <td>Documentos e coleções estruturadas</td>
+    </tr>
+    <tr>
+      <td>Escalabilidade</td>
+      <td>Boa para apps simples, com limites em escala</td>
+      <td>Alta escala e robusto</td>
+    </tr>
+    <tr>
+      <td>Consultas</td>
+      <td>Limitadas, filtros simples</td>
+      <td>Consultas avançadas e poderosas</td>
+    </tr>
+    <tr>
+      <td>Offline</td>
+      <td>Suporte básico</td>
+      <td>Suporte offline avançado</td>
+    </tr>
+    <tr>
+      <td>Regras de segurança</td>
+      <td>Baseadas em paths JSON</td>
+      <td>Baseadas em documentos e coleções</td>
+    </tr>
+    <tr>
+      <td>Complexidade</td>
+      <td>Simples para começar</td>
+      <td>Mais flexível, porém mais complexo</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>6. Obter o usuário autenticado para salvar dados</h3>
+<p>Após login, você pode obter o usuário atual e seu <code>uid</code> para salvar dados específicos de cada usuário:</p>
+<pre><code class="language-kotlin">
+val usuario = FirebaseAuth.getInstance().currentUser
+val uid = usuario?.uid
+</code></pre>
+<p>Use esse <code>uid</code> para acessar ou salvar dados no Realtime Database de forma segura e organizada.</p>
+
+
