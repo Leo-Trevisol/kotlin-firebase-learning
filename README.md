@@ -632,9 +632,9 @@ val actionCodeSettings = ActionCodeSettings.newBuilder()
 FirebaseAuth.getInstance().currentUser?.sendEmailVerification(actionCodeSettings)
 </code></pre>
 
-<h2>Firebase Realtime Database </h2>
+<h2>Firebase Realtime Database  (com exemplo de implementação) </h2>
 
-<h3>1. Ative o Realtime Database no Firebase Console (com exemplo de implementação)</h3>
+<h3>1. Ative o Realtime Database no Firebase Console</h3>
 <ul>
   <li>Acesse o <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
   <li>Selecione seu projeto</li>
