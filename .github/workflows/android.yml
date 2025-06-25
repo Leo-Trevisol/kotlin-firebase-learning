@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -32,18 +31,18 @@ jobs:
             ${{ runner.os }}-gradle
 
       - name: Criar google-services.json
-        run: |
-          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > app/google-services.json
         working-directory: FirebaseLearning
+        run: |
+          echo -e "${{ secrets.GOOGLE_SERVICES_JSON }}" > app/google-services.json
 
       - name: Permitir execução do Gradle Wrapper
-        run: chmod +x gradlew
         working-directory: FirebaseLearning
+        run: chmod +x ./gradlew
 
       - name: Build do projeto
-        run: ./gradlew build
         working-directory: FirebaseLearning
+        run: ./gradlew build
 
       - name: Executar testes unitários
-        run: ./gradlew test
         working-directory: FirebaseLearning
+        run: ./gradlew test
