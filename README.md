@@ -18,7 +18,9 @@ Repositório para estudos e experimentos com Firebase, incluindo autenticação,
   <li><strong>CI com GitHub Actions:</strong> Automatização de build e testes Android</li>
 </ul>
 
-<h2> Iniciando com o Firebase console</h2>
+<h2 style="border-left: 5px solid #2196F3; padding-left: 10px; color: #0D47A1;">
+  🚀 Iniciando com o Firebase Console
+</h2>
 
 <h3> 1. Criar projeto no Firebase Console</h3>
 
