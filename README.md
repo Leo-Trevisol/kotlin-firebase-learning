@@ -775,4 +775,129 @@ val uid = usuario?.uid
 </code></pre>
 <p>Use esse <code>uid</code> para acessar ou salvar dados no Realtime Database de forma segura e organizada.</p>
 
+<h2>CI com GitHub Actions para Android (Build automático + Testes)</h2>
 
+<h3>1. Crie a estrutura de pastas no seu projeto</h3>
+<p>No terminal, dentro da raiz do seu projeto Android, execute:</p>
+
+<pre><code class="language-bash">mkdir -p .github/workflows</code></pre>
+
+<p>O diretório <code>.github/workflows</code> deve ficar na <strong>raiz do projeto</strong>, no mesmo nível dos arquivos como <code>gradlew</code> e <code>settings.gradle</code>.</p>
+
+<p><strong>Exemplo de estrutura:</strong></p>
+
+<pre><code class="language-text">
+FirebaseLearning/
+├── app/
+├── gradle/
+├── .github/
+│   └── workflows/
+├── build.gradle
+├── gradlew
+├── settings.gradle
+</code></pre>
+
+<h3>2. Crie o arquivo de workflow do GitHub Actions</h3>
+<p>Dentro da pasta <code>.github/workflows</code>, crie o arquivo <code>android-ci.yml</code>:</p>
+
+<pre><code class="language-bash">touch .github/workflows/android-ci.yml</code></pre>
+
+<p>Exemplo de conteúdo:</p>
+
+<pre><code class="language-yaml">
+name: Android CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache do Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle
+
+      - name: Criar google-services.json
+        working-directory: FirebaseLearning
+        run: |
+          echo -e "${{ secrets.GOOGLE_SERVICES_JSON }}" > app/google-services.json
+
+      - name: Permitir execução do Gradle Wrapper
+        working-directory: FirebaseLearning
+        run: chmod +x ./gradlew
+
+      - name: Build do projeto
+        working-directory: FirebaseLearning
+        run: ./gradlew build
+
+      - name: Executar testes unitários
+        working-directory: FirebaseLearning
+        run: ./gradlew test
+</code></pre>
+
+<h3>3. Configure o segredo do <code>google-services.json</code> no GitHub</h3>
+
+<ul>
+  <li>Vá até seu repositório no <a href="https://github.com/" target="_blank">GitHub</a></li>
+  <li>Clique em <strong>Settings</strong></li>
+  <li>Vá em <strong>Secrets and variables &gt; Actions</strong></li>
+  <li>Clique em <strong>New repository secret</strong></li>
+</ul>
+
+<p>Preencha assim:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Campo</th>
+      <th>Valor</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Name</strong></td>
+      <td><code>GOOGLE_SERVICES_JSON</code></td>
+    </tr>
+    <tr>
+      <td><strong>Secret</strong></td>
+      <td>Cole o conteúdo completo do arquivo <code>google-services.json</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>Dica:</em> Para visualizar o conteúdo no terminal:</p>
+
+<pre><code class="language-bash">cat app/google-services.json</code></pre>
+
+<h3>4. Pronto! O CI está configurado</h3>
+<p>Sempre que você fizer um <code>push</code> ou abrir um <code>pull request</code> no branch <strong>main</strong>:</p>
+
+<ul>
+  <li>O GitHub Actions vai baixar o código</li>
+  <li>Configurar o ambiente (JDK, Cache Gradle)</li>
+  <li>Criar o arquivo <code>google-services.json</code></li>
+  <li>Buildar o projeto</li>
+  <li>Executar testes unitários</li>
+</ul>
+
+<p>Acompanhe as execuções clicando em <strong>Actions</strong> no seu repositório GitHub.</p>
