@@ -18,8 +18,9 @@ Repositório para estudos e experimentos com Firebase, incluindo autenticação,
   <li><strong>CI com GitHub Actions:</strong> Automatização de build e testes Android</li>
 </ul>
 
+<h2> Iniciando com o Firebase console</h2>
 
-### 1. Criar projeto no Firebase Console
+<h3> 1. Criar projeto no Firebase Console</h3>
 
 1. Vá para [Firebase Console](https://console.firebase.google.com/)
 2. Clique em **"Adicionar projeto"**
@@ -163,7 +164,9 @@ db.collection("usuarios").document("usuario1")
     }
 </code></pre>
 
-<h2> Login com Google no Firebase (com exemplo de implementação)</h2>
+<h2 style="border-left: 5px solid #4CAF50; padding-left: 10px; color: #2E7D32;">
+  🔑 Login com Google no Firebase (com exemplo de implementação)
+</h2>
 
 <h3> 1. Ative o Login com Google no Firebase</h3>
 <ul>
@@ -249,7 +252,9 @@ class LoginGoogleActivity : AppCompatActivity() {
 }
 </code></pre>
 
-<h2> Cloud Firestore no Firebase (com exemplo de implementação)</h2>
+<h2 style="border-left: 5px solid #4CAF50; padding-left: 10px; color: #2E7D32;">
+  🔥 Cloud Firestore no Firebase (com exemplo de implementação)
+</h2>
 
 <h3>1. Ative o Firestore no Firebase</h3>
 <ul>
@@ -318,7 +323,9 @@ service cloud.firestore {
   }
 }</code></pre>
 
-<h2>Amarrando dados ao usuário autenticado no Firebase (com exemplo de implementação)</h2>
+<h2 style="border-left: 5px solid #4CAF50; padding-left: 10px; color: #2E7D32;">
+  🔐 Amarrando dados ao usuário autenticado no Firebase (com exemplo de implementação)
+</h2>
 
 <p>Este passo a passo mostra como salvar e ler dados no Firestore vinculando-os ao usuário autenticado via Firebase Authentication (ex: login com Google).</p>
 
@@ -405,7 +412,9 @@ service cloud.firestore {
   <li>Proteja os dados com regras de segurança no Firestore</li>
 </ul>
 
-<h2>Login com E-mail e Senha no Firebase (com exemplo de implementação)</h2>
+<h2 style="border-left: 5px solid #4CAF50; padding-left: 10px; color: #2E7D32;">
+  📧 Login com E-mail e Senha no Firebase (com exemplo de implementação)
+</h2>
 
 <h3>1. Ative o Login com E-mail/Senha no Firebase</h3>
 <ul>
@@ -508,7 +517,9 @@ val uid = usuario?.uid
 </code></pre>
 <p>Com esse <code>uid</code>, você pode salvar dados no Firestore ou Realtime Database de forma segura e individual para cada usuário.</p>
 
-<h2> Reset de Senha com Firebase Authentication</h2>
+<h2 style="border-left: 5px solid #4CAF50; padding-left: 10px; color: #2E7D32;">
+  🔄 Reset de Senha com Firebase Authentication
+</h2>
 
 <h3>1. Adicione um botão "Esqueceu a senha?" no layout</h3>
 <pre><code class="language-xml">
@@ -570,7 +581,9 @@ val actionCodeSettings = ActionCodeSettings.newBuilder()
 FirebaseAuth.getInstance().sendPasswordResetEmail(email, actionCodeSettings)
 </code></pre>
 
-<h2> Verificação de E-mail com Firebase Authentication</h2>
+<h2 style="border-left: 5px solid #4CAF50; padding-left: 10px; color: #2E7D32;">
+  ✔️ Verificação de E-mail com Firebase Authentication
+</h2>
 
 <h3>1. Enviar e-mail de verificação após o registro</h3>
 <pre><code class="language-kotlin">
@@ -649,7 +662,9 @@ val actionCodeSettings = ActionCodeSettings.newBuilder()
 FirebaseAuth.getInstance().currentUser?.sendEmailVerification(actionCodeSettings)
 </code></pre>
 
-<h2>Firebase Realtime Database  (com exemplo de implementação) </h2>
+<h2 style="border-left: 5px solid #4CAF50; padding-left: 10px; color: #2E7D32;">
+  💾 Firebase Realtime Database  (com exemplo de implementação)
+</h2>
 
 <h3>1. Ative o Realtime Database no Firebase Console</h3>
 <ul>
@@ -792,7 +807,9 @@ val uid = usuario?.uid
 </code></pre>
 <p>Use esse <code>uid</code> para acessar ou salvar dados no Realtime Database de forma segura e organizada.</p>
 
-<h2>CI com GitHub Actions para Android (Build automático + Testes)</h2>
+<h2 style="border-left: 5px solid #4CAF50; padding-left: 10px; color: #2E7D32;">
+  ⚙️ CI com GitHub Actions para Android (Build automático + Testes)
+</h2>
 
 <h3>1. Crie a estrutura de pastas no seu projeto</h3>
 <p>No terminal, dentro da raiz do seu projeto Android, execute:</p>
