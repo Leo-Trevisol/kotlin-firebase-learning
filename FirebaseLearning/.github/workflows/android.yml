@@ -1,0 +1,41 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar JDK 17 (padrão atual do Android Studio)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache do Gradle (ajuda a acelerar builds)
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle
+
+      - name: Permitir execução do Gradle Wrapper
+        run: chmod +x gradlew
+
+      - name: Build do projeto
+        run: ./gradlew build
+
+      - name: Executar testes unitários
+        run: ./gradlew test
