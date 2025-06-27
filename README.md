@@ -1026,3 +1026,79 @@ jobs:
   <li>Use essas informações para melhorar o código antes de fazer merge ou liberar a versão.</li>
 </ul>
 
+<h2 style="border-left: 5px solid #4CAF50; padding-left: 10px; color: #2E7D32;">
+  🚀 Configurando GitHub Pages para exibir o relatório Lint automático
+</h2>
+
+<h3>1. Configure o workflow para gerar e salvar o relatório Lint</h3>
+<p>No seu workflow do GitHub Actions, adicione os passos para copiar o relatório para <code>docs/lint.html</code> e fazer commit automático:</p>
+
+<pre><code class="language-yaml">
+- name: Copiar Relatório do Lint para /docs
+  run: |
+    mkdir -p docs
+    cp FirebaseLearning/app/build/reports/lint-results-debug.html docs/lint.html
+
+- name: Commit automático do relatório Lint
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  run: |
+    git config --global user.name "github-actions"
+    git config --global user.email "actions@github.com"
+    git add docs/lint.html || true
+    git diff --quiet --cached || git commit -m "Atualizar relatório Lint automático"
+    git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+</code></pre>
+
+<h3>2. Configure o GitHub Pages no repositório</h3>
+<ul>
+  <li>Acesse seu repositório no <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>.</li>
+  <li>Vá em <strong>Settings</strong> (Configurações).</li>
+  <li>No menu lateral, clique em <strong>Pages</strong>.</li>
+  <li>Em <strong>Source</strong>, selecione:
+    <ul>
+      <li>Branch: <code>main</code></li>
+      <li>Pasta (folder): <code>/docs</code></li>
+    </ul>
+  </li>
+  <li>Clique em <strong>Save</strong>.</li>
+</ul>
+<p>Agora o GitHub Pages servirá arquivos da pasta <code>/docs</code> da branch <code>main</code>.</p>
+
+<h3>3. Acesse seu relatório Lint via GitHub Pages</h3>
+<p>Após alguns minutos, o relatório estará disponível em:</p>
+<p><code>https://seu-usuario.github.io/seu-repositorio/lint.html</code></p>
+
+<h3>4. Sobre o uso do <code>GITHUB_TOKEN</code> no workflow</h3>
+<ul>
+  <li><code>GITHUB_TOKEN</code> é um token gerado automaticamente pelo GitHub para permitir que o workflow faça commits e pushes com segurança.</li>
+  <li>Usando este token, o workflow pode atualizar o relatório automaticamente sem precisar de senha.</li>
+</ul>
+
+<h3>5. Evitando loops infinitos no workflow</h3>
+<p>Para evitar que o commit automático dispare o workflow infinitamente, configure o evento <code>push</code> para ignorar alterações na pasta <code>docs</code>:</p>
+
+<pre><code class="language-yaml">
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - 'docs/**'
+</code></pre>
+
+<p>E no script do commit, garanta que ele só faça commit se houver mudanças reais:</p>
+
+<pre><code class="bash">
+git diff --quiet --cached || git commit -m "Atualizar relatório Lint automático"
+</code></pre>
+
+<h3>Resumo</h3>
+<ul>
+  <li>Workflow gera e salva relatório Lint em <code>docs/lint.html</code>.</li>
+  <li>GitHub Pages configurado para servir arquivos da pasta <code>/docs</code> da branch <code>main</code>.</li>
+  <li>Relatório fica disponível publicamente via URL do Pages.</li>
+  <li><code>GITHUB_TOKEN</code> permite commits automáticos com segurança.</li>
+  <li>Ignorar alterações na pasta <code>/docs</code> evita loops infinitos.</li>
+</ul>
+
+
