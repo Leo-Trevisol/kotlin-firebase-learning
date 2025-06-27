@@ -47,8 +47,18 @@ jobs:
         working-directory: FirebaseLearning
         run: ./gradlew test
 
+      - name: Executar Lint (análise de qualidade do código)
+        working-directory: FirebaseLearning
+        run: ./gradlew lint
+
       - name: Publicar APK como artefato
         uses: actions/upload-artifact@v4
         with:
           name: app-debug.apk
           path: FirebaseLearning/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publicar Relatório Lint como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report.html
+          path: FirebaseLearning/app/build/reports/lint-results-debug.html
