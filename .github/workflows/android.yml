@@ -41,8 +41,14 @@ jobs:
 
       - name: Build do projeto
         working-directory: FirebaseLearning
-        run: ./gradlew build
+        run: ./gradlew assembleDebug
 
       - name: Executar testes unitários
         working-directory: FirebaseLearning
         run: ./gradlew test
+
+      - name: Publicar APK como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.apk
+          path: FirebaseLearning/app/build/outputs/apk/debug/app-debug.apk
