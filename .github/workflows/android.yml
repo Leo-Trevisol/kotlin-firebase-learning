@@ -3,6 +3,9 @@ name: Android CI
 on:
   push:
     branches: [ "main" ]
+    # Ignorar pushes que alterem só arquivos na pasta docs para evitar loop
+    paths-ignore:
+      - 'docs/**'
   pull_request:
     branches: [ "main" ]
 
@@ -41,9 +44,15 @@ jobs:
         working-directory: FirebaseLearning
         run: chmod +x ./gradlew
 
-      - name: Build do projeto
+      - name: Build do projeto (gerar APK)
         working-directory: FirebaseLearning
         run: ./gradlew assembleDebug
+
+      - name: Publicar APK como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.apk
+          path: FirebaseLearning/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Executar testes unitários
         working-directory: FirebaseLearning
@@ -65,5 +74,5 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
           git add docs/lint.html || true
-          git commit -m "Atualizar relatório Lint automático" || true
+          git diff --quiet --cached || git commit -m "Atualizar relatório Lint automático"
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
