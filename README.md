@@ -7,12 +7,12 @@ Repositório para estudos e experimentos com Firebase, incluindo autenticação,
 
 <ul>
   <li><strong>Configuração do Firebase:</strong> Integração inicial e dependências</li>
-  <li><strong>Login com E-mail e Senha:</strong> Autenticação de usuários</li>
   <li><strong>Login com Google:</strong> Login social usando Google Sign-In</li>
-  <li><strong>Reset de Senha:</strong> Recuperação de conta por e-mail</li>
-  <li><strong>Verificação de E-mail:</strong> Confirmação do e-mail do usuário</li>
   <li><strong>Firestore:</strong> Banco de dados em nuvem estruturado com documentos</li>
   <li><strong>Amarrando dados ao usuário:</strong> Dados vinculados ao UID do usuário autenticado</li>
+  <li><strong>Login com E-mail e Senha:</strong> Autenticação de usuários</li>
+  <li><strong>Reset de Senha:</strong> Recuperação de conta por e-mail</li>
+  <li><strong>Verificação de E-mail:</strong> Confirmação do e-mail do usuário</li>
   <li><strong>Realtime Database:</strong> Banco de dados simples e em tempo real</li>
   <li><strong>Comparação Firestore x Realtime:</strong> Diferenças técnicas e de uso</li>
   <li><strong>CI com GitHub Actions:</strong> Automatização de build e testes Android</li>
