@@ -49,16 +49,17 @@ jobs:
 
       - name: Executar Lint (análise de qualidade do código)
         working-directory: FirebaseLearning
-        run: ./gradlew lint
+        run: ./gradlew lintDebug
 
-      - name: Publicar APK como artefato
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug.apk
-          path: FirebaseLearning/app/build/outputs/apk/debug/app-debug.apk
+      - name: Copiar Relatório do Lint para /docs
+        run: |
+          mkdir -p docs
+          cp FirebaseLearning/app/build/reports/lint-results-debug.html docs/lint.html
 
-      - name: Publicar Relatório Lint como artefato
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-report.html
-          path: FirebaseLearning/app/build/reports/lint-results-debug.html
+      - name: Commit automático do relatório Lint
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add docs/lint.html
+          git commit -m "Atualizar relatório Lint automático"
+          git push
