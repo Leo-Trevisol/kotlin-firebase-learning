@@ -985,3 +985,44 @@ jobs:
 
 <p><strong>Dica:</strong> Você pode configurar também geração de <code>release</code> usando <code>assembleRelease</code> e assinando o APK, se desejar.</p>
 
+<h2 style="border-left: 5px solid #4CAF50; padding-left: 10px; color: #2E7D32;">
+  🧹 Configurando Lint Automático no GitHub Actions para Android
+</h2>
+
+<h3>1. O que é Lint?</h3>
+<p>
+  Lint é uma ferramenta de análise estática que verifica a qualidade do código Android, apontando erros, problemas de performance, segurança, acessibilidade e más práticas.
+  Usar Lint no CI ajuda a manter o código limpo e evitar bugs antes de rodar o app.
+</p>
+
+<h3>2. Adicione o passo para rodar o Lint no seu arquivo <code>android-ci.yml</code></h3>
+<pre><code class="language-yaml">
+- name: Executar Lint (análise de qualidade do código)
+  working-directory: FirebaseLearning
+  run: ./gradlew lint
+</code></pre>
+
+<h3>3. Gere o relatório HTML do Lint</h3>
+<p>
+  O Gradle gera um relatório em:<br>
+  <code>app/build/reports/lint-results-debug.html</code>
+</p>
+<p>Este arquivo contém os problemas encontrados e sugestões para correção.</p>
+
+<h3>4. Publique o relatório HTML como artefato do workflow</h3>
+<pre><code class="language-yaml">
+- name: Publicar Relatório Lint como artefato
+  uses: actions/upload-artifact@v4
+  with:
+    name: lint-report.html
+    path: FirebaseLearning/app/build/reports/lint-results-debug.html
+</code></pre>
+
+<h3>5. Como usar o relatório</h3>
+<ul>
+  <li>Após o workflow rodar, acesse a aba <strong>Actions</strong> no GitHub.</li>
+  <li>Abra a execução mais recente e clique no artefato <code>lint-report.html</code>.</li>
+  <li>Baixe e abra no navegador para ver os detalhes e sugestões do Lint.</li>
+  <li>Use essas informações para melhorar o código antes de fazer merge ou liberar a versão.</li>
+</ul>
+
