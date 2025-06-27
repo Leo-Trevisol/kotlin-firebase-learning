@@ -937,3 +937,51 @@ jobs:
 </ul>
 
 <p>Acompanhe as execuções clicando em <strong>Actions</strong> no seu repositório GitHub.</p>
+
+<h2 style="border-left: 5px solid #4CAF50; padding-left: 10px; color: #2E7D32;">
+  📦 Geração e Publicação de APK no GitHub Actions
+</h2>
+
+<h3>1. Alterar o comando de build para gerar APK</h3>
+<p>No arquivo <code>.github/workflows/android-ci.yml</code>, troque o comando de build:</p>
+
+<pre><code class="language-yaml">
+- name: Build do projeto
+  working-directory: FirebaseLearning
+  run: ./gradlew assembleDebug
+</code></pre>
+
+<p>O <strong><code>assembleDebug</code></strong> gera o arquivo <code>app-debug.apk</code> localizado em:</p>
+
+<pre><code class="language-text">FirebaseLearning/app/build/outputs/apk/debug/app-debug.apk</code></pre>
+
+<h3>2. Adicionar passo de publicação do APK como artefato</h3>
+<p>Logo após o build, adicione:</p>
+
+<pre><code class="language-yaml">
+- name: Publicar APK como artefato
+  uses: actions/upload-artifact@v4
+  with:
+    name: app-debug.apk
+    path: FirebaseLearning/app/build/outputs/apk/debug/app-debug.apk
+</code></pre>
+
+<p>Esse passo disponibiliza o <code>.apk</code> gerado na aba <strong>Actions</strong> do seu repositório GitHub.</p>
+
+<h3>3. Resultado Final</h3>
+<ul>
+  <li>O projeto será buildado com <code>assembleDebug</code></li>
+  <li>O arquivo <code>app-debug.apk</code> será gerado</li>
+  <li>O APK fica disponível como artefato para download</li>
+</ul>
+
+<p>Para acessar o APK:</p>
+<ol>
+  <li>Abra seu repositório no <a href="https://github.com/" target="_blank">GitHub</a></li>
+  <li>Clique na aba <strong>Actions</strong></li>
+  <li>Abra a execução do workflow desejado</li>
+  <li>O APK estará na seção <strong>Artifacts</strong></li>
+</ol>
+
+<p><strong>Dica:</strong> Você pode configurar também geração de <code>release</code> usando <code>assembleRelease</code> e assinando o APK, se desejar.</p>
+
