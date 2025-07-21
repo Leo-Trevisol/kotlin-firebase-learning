@@ -1,9 +1,18 @@
-# firebase-learning
-Repositório para estudos e experimentos com Firebase, incluindo autenticação, banco de dados, e funções em nuvem
+<h1 align="center">🔥 firebase-learning</h1>
 
-<h2> Sobre este projeto</h2>
+<p align="center">
+  Repositório dedicado a estudos e experimentos com <strong>Firebase</strong> em aplicações Android.
+</p>
 
-<p>Este repositório demonstra o uso prático do <strong>Firebase</strong> com Android, incluindo:</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/Firebase-Platform-yellow?logo=firebase"/>
+  <img src="https://img.shields.io/badge/Firestore-Realtime-blue?logo=google-cloud"/>
+  <img src="https://img.shields.io/badge/Auth-Google%20Sign--In-orange?logo=google"/>
+  <img src="https://img.shields.io/badge/CI-GitHub%20Actions-blue?logo=github"/>
+  <img src="https://img.shields.io/badge/Android%20Studio-Giraffe-green?logo=android"/>
+</p>
+
+<hr/>
 
 <ul>
   <li><strong>Configuração do Firebase:</strong> Integração inicial e dependências</li>
