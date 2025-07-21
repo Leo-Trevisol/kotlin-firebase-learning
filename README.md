@@ -14,6 +14,8 @@
 
 <hr/>
 
+<h2>📚 Conteúdo do Projeto</h2>
+
 <ul>
   <li><strong>Configuração do Firebase:</strong> Integração inicial e dependências</li>
   <li><strong>Login com Google:</strong> Login social usando Google Sign-In</li>
